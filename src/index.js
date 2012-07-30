@@ -1,7 +1,7 @@
 var TemplateMixin = require('./mixin')
 var extend = require('yaul/extend')
 
-//var config = require('module').config()
+var config = require('module').config()
 
 function Template (config) {
   config = config || {}
@@ -15,5 +15,9 @@ function Template (config) {
 
 Template.prototype = extend({}, TemplateMixin)
 Template.setTags = Template.prototype.setTags
+
+if (config.tags) {
+  Template.setTags(config.tags)
+}
 
 module.exports = Template
