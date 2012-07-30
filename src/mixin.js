@@ -1,4 +1,3 @@
-//@ sourceURL = yate/mixin.js
 
 var hasOwn = require('yaul/hasOwn')
 var typeOf = require('yaul/typeOf')
@@ -262,6 +261,5 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
 }
 
-module.exports = mixin
 
-//@ sourceURL = yate/mixin.js
+module.exports = mixin

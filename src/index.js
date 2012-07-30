@@ -1,7 +1,7 @@
-//@ sourceURL = yate/index.js
-
 var TemplateMixin = require('./mixin')
 var extend = require('yaul/extend')
+
+//var config = require('module').config()
 
 function Template (config) {
   config = config || {}
@@ -17,5 +17,3 @@ Template.prototype = extend({}, TemplateMixin)
 Template.setTags = Template.prototype.setTags
 
 module.exports = Template
-
-//@ sourceURL = yate/index.js
