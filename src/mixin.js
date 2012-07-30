@@ -1,5 +1,6 @@
 
 var hasOwn = require('yaul/hasOwn')
+var forEach = require('yaul/forEach')
 
 function type (t) { 
   return Object.prototype.toString.call(t)
