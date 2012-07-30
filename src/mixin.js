@@ -1,8 +1,9 @@
 
 var hasOwn = require('yaul/hasOwn')
-var typeOf = require('yaul/typeOf')
-var isArray = require('yaul/isArray')
-var slice = require('yaul/slice')
+
+function type (t) { 
+  return Object.prototype.toString.call(t)
+}
 
 function isPath ( str ) {
   if(!str) return !!0;
@@ -60,7 +61,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
         ,context = self.getContext()
         ,k
 
-    if ( typeOf( key, 'object') ) {
+    if ( type(key) === '[object Object]' ) {
       for ( k in key ) {
         if ( hasOwn(key,k) ) {
           self.setContext(k, key[k])
@@ -79,7 +80,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
    *
    */ 
   ,getContext: function (args) {
-    var args = isArray(args) ? args : slice(arguments,0)
+    var args = (type(args) == '[object Array]') ? args : Array.prototype.slice.call(arguments,0)
       , context = make(this, '_context', {})
 
     if (arguments.length > 0 ) {
@@ -182,7 +183,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
     for ( key in operators ) {
       if ( hasOwn(operators, key) ) {
         operator = operators[key]
-        if ( typeOf(operator[0], 'string') ) {
+        if ( typeof(operator[0]) === 'string' ) {
           this.addOperator(key, operator[0], operator[1])
         }
       }
@@ -212,7 +213,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
     // This will be part of a str.replace method
     // So the arguments should match those that you would use
     // for the .replace method on strings.
-    if ( !typeOf(regexp, 'regexp') ) { // todo: Fix Duck Typing for regexp
+    if ( !type(regexp) === '[object RegExp]' ) { // todo: Fix Duck Typing for regexp
       regexp = new RegExp(self.getTag('open') + regexp + self.getTag('close'), 'g')
     }
     
@@ -225,7 +226,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
    *
    */ 
   ,compile: function ( /* Object */ data, context) {
-    data = data || this._context;
+    data = data || this.getContext()
     var self = this
       , open = this.getTag('open')
       , close = this.getTag('close')
