@@ -3,7 +3,7 @@ var hasOwn = require('yaul/hasOwn')
 var forEach = require('yaul/forEach')
 
 function type (t) { 
-  return Object.prototype.toString.call(t)
+  return Object.prototype.toString.call(obj).match(/\s([a-z|A-Z]+)/)[1].toLowerCase();
 }
 
 function isPath ( str ) {
@@ -53,7 +53,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
   
   /**
-   *
+   *  Template#setContext
    *
    *
    */ 
@@ -62,7 +62,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
         ,context = self.getContext()
         ,k
 
-    if ( type(key) === '[object Object]' ) {
+    if ( type(key) === 'object' ) {
       for ( k in key ) {
         if ( hasOwn(key,k) ) {
           self.setContext(k, key[k])
@@ -76,12 +76,12 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
 
   /**
-   *
+   *  Template#getContext
    *
    *
    */ 
   ,getContext: function (args) {
-    var args = (type(args) == '[object Array]') ? args : Array.prototype.slice.call(arguments,0)
+    var args = (type(args) == 'array') ? args : Array.prototype.slice.call(arguments,0)
       , context = make(this, '_context', {})
 
     if (arguments.length > 0 ) {
@@ -94,8 +94,8 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
   
   /**
-   *
-   *
+   *  Template#setTags
+   *  
    *
    */ 
   ,setTags: function ( tags) {
@@ -179,12 +179,14 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
    *
    */ 
   ,parseOperators: function () {
-    var key, operator, operators = this._templateOperators
+    var key
+      , operator
+      , operators = this._templateOperators
 
     for ( key in operators ) {
       if ( hasOwn(operators, key) ) {
         operator = operators[key]
-        if ( typeof(operator[0]) === 'string' ) {
+        if ( typeof operator[0] === 'string' ) {
           this.addOperator(key, operator[0], operator[1])
         }
       }
@@ -214,7 +216,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
     // This will be part of a str.replace method
     // So the arguments should match those that you would use
     // for the .replace method on strings.
-    if ( !type(regexp) === '[object RegExp]' ) { // todo: Fix Duck Typing for regexp
+    if ( !type(regexp) === 'regexp' ) { // todo: Fix Duck Typing for regexp
       regexp = new RegExp(self.getTag('open') + regexp + self.getTag('close'), 'g')
     }
     
