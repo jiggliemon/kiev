@@ -1,0 +1,1 @@
+define(['./index'],function(r) {return r})
