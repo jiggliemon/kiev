@@ -37,7 +37,7 @@ function escape (string) {
 }
 
 var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi
-  , mixin  = {
+  , TemplateMixin  = {
    _templateTags: {
      open: '<?'
     ,close: '?>'
@@ -53,7 +53,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
   
   /**
-   *  Template#setContext
+   *  #setContext
    *
    *
    */ 
@@ -76,7 +76,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
 
   /**
-   *  Template#getContext
+   *  #getContext
    *
    *
    */ 
@@ -94,7 +94,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
   
   /**
-   *  Template#setTags
+   *  #setTags
    *  
    *
    */ 
@@ -120,9 +120,8 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
 
   /**
-   *
-   *
-   *
+   *  #getTags
+   *  @returns {Object} Key/Value hash with the value of the open and close tags
    */ 
   ,getTags: function () {
     return this._templateTags
@@ -194,9 +193,9 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
 
   /**
-   *
-   *
-   *
+   *  #getOperators
+   *  
+   *  @returns {Object}
    */ 
   ,getOperators: function () {
     var self = this
@@ -207,9 +206,11 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
 
   /**
+   *  #addOperator
    *
-   *
-   *
+   *  @param {String} name
+   *  @param {String|Regexp} regexp
+   *  @param {Function|String} fn
    */ 
   ,addOperator: function ( /* String */ name, /* || String */ regexp, /* Function || String */ fn) {
     var self = this
@@ -224,20 +225,21 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
 
   /**
+   *  #compile
    *
-   *
-   *
+   *  @param {Object} context
+   *  @param {Object} model
    */ 
-  ,compile: function ( /* Object */ data, context) {
-    data = data || this.getContext()
+  ,compile: function ( /* Object */ context, model ) {
+    data = context || this.getContext()
     var self = this
-      , open = this.getTag('open')
-      , close = this.getTag('close')
-      , operators = this.getOperators()
+      , open = self.getTag('open')
+      , close = self.getTag('close')
+      , operators = self.getOperators()
       , key, body, head = 'var p=[],print=function(){p.push.apply(p,arguments);};'
       , wrapper = ["with(__o){p.push('", "');}return p.join('');"]
       , compiled = null
-      , template = this.getTemplate()
+      , template = self.getTemplate()
       , inner = !template ? "<b>No template</b>" : template.replace(/[\r\t\n]/g, " ")
 
     for ( key in operators ) {
@@ -247,7 +249,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
     }
 
     // This method will evaluate in the template.
-    inner = inner.replace(new RegExp(open + '([\\s\\S]+?)' + close, 'g'), function (match, code) {
+    inner = inner.replace(new RegExp(open + '([\\s\\S]+?)' + close, 'g'), function ( match, code ) {
       return "');" + code.replace(/\\'/g, "'").replace(/[\r\n\t]/g, ' ') + ";p.push('"
     })
 
@@ -261,9 +263,9 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
       window.console && console.warn(ex)
       throw new Error('Syntax error in template: function body :: ' + body)
     }
-    return compiled.call(context,data)
+    return compiled.call(model,data)
   }
 }
 
 
-module.exports = mixin
+module.exports = TemplateMixin
