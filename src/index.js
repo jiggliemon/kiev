@@ -1,5 +1,3 @@
-//@ sourceURL = yate/index.js
-
 var TemplateMixin = require('./mixin')
 var extend = require('yaul/extend')
 
@@ -17,5 +15,3 @@ Template.prototype = extend({}, TemplateMixin)
 Template.setTags = Template.prototype.setTags
 
 module.exports = Template
-
-//@ sourceURL = yate/index.js
