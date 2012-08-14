@@ -1,7 +1,9 @@
 var hasOwn = require('yaul/hasOwn')
-var typeOf = require('yaul/typeOf')
-var isArray = require('yaul/isArray')
-var slice = require('yaul/slice')
+var forEach = require('yaul/forEach')
+
+function type (t) { 
+  return Object.prototype.toString.call(obj).match(/\s([a-z|A-Z]+)/)[1].toLowerCase();
+}
 
 function isPath ( str ) {
   if(!str) return !!0;
@@ -34,7 +36,7 @@ function escape (string) {
 }
 
 var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi
-  , mixin  = {
+  , TemplateMixin  = {
    _templateTags: {
      open: '<?'
     ,close: '?>'
@@ -50,7 +52,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
   
   /**
-   *
+   *  #setContext
    *
    *
    */ 
@@ -59,7 +61,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
         ,context = self.getContext()
         ,k
 
-    if ( typeOf( key, 'object') ) {
+    if ( type(key) === 'object' ) {
       for ( k in key ) {
         if ( hasOwn(key,k) ) {
           self.setContext(k, key[k])
@@ -73,12 +75,12 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
 
   /**
-   *
+   *  #getContext
    *
    *
    */ 
   ,getContext: function (args) {
-    var args = isArray(args) ? args : slice(arguments,0)
+    var args = (type(args) == 'array') ? args : Array.prototype.slice.call(arguments,0)
       , context = make(this, '_context', {})
 
     if (arguments.length > 0 ) {
@@ -91,8 +93,8 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
   
   /**
-   *
-   *
+   *  #setTags
+   *  
    *
    */ 
   ,setTags: function ( tags) {
@@ -117,9 +119,8 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
 
   /**
-   *
-   *
-   *
+   *  #getTags
+   *  @returns {Object} Key/Value hash with the value of the open and close tags
    */ 
   ,getTags: function () {
     return this._templateTags
@@ -176,12 +177,14 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
    *
    */ 
   ,parseOperators: function () {
-    var key, operator, operators = this._templateOperators
+    var key
+      , operator
+      , operators = this._templateOperators
 
     for ( key in operators ) {
       if ( hasOwn(operators, key) ) {
         operator = operators[key]
-        if ( typeOf(operator[0], 'string') ) {
+        if ( typeof operator[0] === 'string' ) {
           this.addOperator(key, operator[0], operator[1])
         }
       }
@@ -189,9 +192,9 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
 
   /**
-   *
-   *
-   *
+   *  #getOperators
+   *  
+   *  @returns {Object}
    */ 
   ,getOperators: function () {
     var self = this
@@ -202,16 +205,18 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
 
   /**
+   *  #addOperator
    *
-   *
-   *
+   *  @param {String} name
+   *  @param {String|Regexp} regexp
+   *  @param {Function|String} fn
    */ 
   ,addOperator: function ( /* String */ name, /* || String */ regexp, /* Function || String */ fn) {
     var self = this
     // This will be part of a str.replace method
     // So the arguments should match those that you would use
     // for the .replace method on strings.
-    if ( !typeOf(regexp, 'regexp') ) { // todo: Fix Duck Typing for regexp
+    if ( !type(regexp) === 'regexp' ) { // todo: Fix Duck Typing for regexp
       regexp = new RegExp(self.getTag('open') + regexp + self.getTag('close'), 'g')
     }
     
@@ -219,20 +224,21 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
   }
 
   /**
+   *  #compile
    *
-   *
-   *
+   *  @param {Object} context
+   *  @param {Object} model
    */ 
-  ,compile: function ( /* Object */ data, context) {
-    data = data || this._context;
+  ,compile: function ( /* Object */ context, model ) {
+    data = context || this.getContext()
     var self = this
-      , open = this.getTag('open')
-      , close = this.getTag('close')
-      , operators = this.getOperators()
+      , open = self.getTag('open')
+      , close = self.getTag('close')
+      , operators = self.getOperators()
       , key, body, head = 'var p=[],print=function(){p.push.apply(p,arguments);};'
       , wrapper = ["with(__o){p.push('", "');}return p.join('');"]
       , compiled = null
-      , template = this.getTemplate()
+      , template = self.getTemplate()
       , inner = !template ? "<b>No template</b>" : template.replace(/[\r\t\n]/g, " ")
 
     for ( key in operators ) {
@@ -242,7 +248,7 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
     }
 
     // This method will evaluate in the template.
-    inner = inner.replace(new RegExp(open + '([\\s\\S]+?)' + close, 'g'), function (match, code) {
+    inner = inner.replace(new RegExp(open + '([\\s\\S]+?)' + close, 'g'), function ( match, code ) {
       return "');" + code.replace(/\\'/g, "'").replace(/[\r\n\t]/g, ' ') + ";p.push('"
     })
 
@@ -256,8 +262,8 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
       window.console && console.warn(ex)
       throw new Error('Syntax error in template: function body :: ' + body)
     }
-    return compiled.call(context,data)
+    return compiled.call(model,data)
   }
 }
 
-module.exports = mixin
+module.exports = TemplateMixin
