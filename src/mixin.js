@@ -1,4 +1,3 @@
-
 var hasOwn = require('yaul/hasOwn')
 var forEach = require('yaul/forEach')
 
