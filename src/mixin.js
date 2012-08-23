@@ -270,5 +270,4 @@ var TemplateMixin = {
   }
 }
 
-
 module.exports = TemplateMixin

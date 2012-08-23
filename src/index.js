@@ -1,7 +1,7 @@
 var TemplateMixin = require('./mixin')
 var extend = require('yaul/extend')
 
-var config = require('module').config()
+var config = module.config()
 
 function Template (config) {
   config = config || {}
