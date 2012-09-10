@@ -6,8 +6,7 @@ var trim = require('yaul/trim')
 
 function isPath ( str ) {
   if(!str) return !!0;
-  // todo: use yaul/trim
-  str = String(str).trim()
+  str = trim(String(str))
 
   // crude check for a dom node && multiple lines
   // URL paths shoudln't have either
@@ -38,8 +37,8 @@ var pathRegexp = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@
 
 var TemplateMixin = {
    _templateTags: {
-     open: '<?'
-    ,close: '?>'
+     open: '<%'
+    ,close: '%>'
    }
 
   ,_templateOperators: {
@@ -142,6 +141,7 @@ var TemplateMixin = {
    */ 
   ,setTemplate: function ( /* String */ str) {
     // todo: use yaul/trim
+    
     str = trim(str).replace(/\\?'/g,"\\'")
 
     if (!str) {
@@ -157,6 +157,7 @@ var TemplateMixin = {
       })
     } else {
       self._template = str
+      console.log(str)
       self.fireEvent && self.fireEvent('template:ready:latched', str)
     }
 
