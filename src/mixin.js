@@ -157,7 +157,6 @@ var TemplateMixin = {
       })
     } else {
       self._template = str
-      console.log(str)
       self.fireEvent && self.fireEvent('template:ready:latched', str)
     }
 
@@ -169,7 +168,7 @@ var TemplateMixin = {
    *
    */ 
   ,getTemplate: function () {
-    return this._template || '<b>No template loaded</b>'
+    return this._template || ''
   }
 
   /**
@@ -264,8 +263,7 @@ var TemplateMixin = {
       body = head + wrapper.join(inner)
       compiled = new Function('__o', head + wrapper.join(inner))
     } catch (ex) {
-      window.console && console.warn(ex)
-      throw new Error('Syntax error in template: function body :: ' + body)
+      window.console && console.warn(ex) && console.warn(body)
     }
     return compiled.call(model,data)
   }
