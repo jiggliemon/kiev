@@ -1,0 +1,17 @@
+{
+   "name": "yate"
+  ,"version":"0.1"
+  ,"description": "Yet another template engine"
+  ,"author": "Chase Wilson <@jiggliemon> (http://agroism.com)"
+  ,"main": "./src/index.js"
+  ,"repository" : { 
+     "type" : "git"
+    ,"url" : "http://github.com/jiggliemon/yate.git"
+  }
+  ,"dependencies": {
+    "yaul":">0.0.0"
+  }
+  ,"devDependencies": {
+    "mocha": "1.6"
+  }
+}
