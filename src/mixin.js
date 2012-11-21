@@ -4,7 +4,7 @@ var typeOf = require('yaul/typeOf')
 var make = require('yaul/make')
 var trim = require('yaul/trim')
 
-function isPath ( str ) {
+var isPath = function  ( str ) {
   if(!str) return !!0;
   str = trim(String(str))
 
@@ -23,7 +23,7 @@ function isPath ( str ) {
   return pathRegexp.test(str)
 }
 
-function escape (string) {
+var escape = function (string) {
   return String(string)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -151,7 +151,7 @@ var TemplateMixin = {
     var self = this
 
     if ( isPath(str) ) {
-      require([str], function (tmpl) {
+      window.require([str], function (tmpl) {
         self._template = trim(tmpl).replace(/\\?'/g,"\\'")
         self.fireEvent && self.fireEvent('template:ready:latched', self._template)
       })
