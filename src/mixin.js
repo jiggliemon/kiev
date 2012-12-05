@@ -3,6 +3,7 @@ var forEach = require('yaul/forEach')
 var typeOf = require('yaul/typeOf')
 var make = require('yaul/make')
 var trim = require('yaul/trim')
+var compiledFns = {}
 
 var isPath = function  ( str ) {
   if(!str) return !!0;
@@ -234,38 +235,40 @@ var TemplateMixin = {
   ,compile: function ( /* Object */ context, model ) {
     data = context || this.getContext()
     var self = this
-    var open = self.getTag('open')
-    var close = self.getTag('close')
-    var operators = self.getOperators()
-    var key
-    var body
-    var head = 'var p=[],print=function(){p.push.apply(p,arguments);};'
-    var wrapper = ["with(__o){p.push('", "');}return p.join('');"]
-    var compiled = null
     var template = self.getTemplate()
-    var inner = !template ? "<b>No template</b>" : template.replace(/[\r\t\n]/g, " ")
+    var tmpl = !template ? "<b>No template</b>" : template.replace(/[\r\t\n]/g, " ")
 
-    for ( key in operators ) {
-      if ( hasOwn(operators,key) ) {
-        inner = inner.replace(operators[key][0], operators[key][1])
+    if (!compiledFns[tmpl]) {
+      var open = self.getTag('open')
+      var close = self.getTag('close')
+      var operators = self.getOperators()
+      var key
+      var body
+      var head = 'var p=[],print=function(){p.push.apply(p,arguments);};'
+      var wrapper = ["with(__o){p.push('", "');}return p.join('');"]
+
+      for ( key in operators ) {
+        if ( hasOwn(operators,key) ) {
+          tmpl = tmpl.replace(operators[key][0], operators[key][1])
+        }
+      }
+
+      // This method will evaluate in the template.
+      tmpl = tmpl.replace(new RegExp(open + '([\\s\\S]+?)' + close, 'g'), function ( match, code ) {
+        return "');" + code.replace(/\\'/g, "'").replace(/[\r\n\t]/g, ' ') + ";p.push('"
+      })
+
+      // Close off the template string.
+      tmpl = tmpl.split("\t").join("');").split("\r").join("\\'")
+
+      try {
+        body = head + wrapper.join(tmpl)
+        compiledFns[tmpl] = new Function('__o', head + wrapper.join(tmpl))
+      } catch (ex) {
+        window.console && console.warn(ex) && console.warn(body)
       }
     }
-
-    // This method will evaluate in the template.
-    inner = inner.replace(new RegExp(open + '([\\s\\S]+?)' + close, 'g'), function ( match, code ) {
-      return "');" + code.replace(/\\'/g, "'").replace(/[\r\n\t]/g, ' ') + ";p.push('"
-    })
-
-    // Close off the template string.
-    inner = inner.split("\t").join("');").split("\r").join("\\'")
-
-    try {
-      body = head + wrapper.join(inner)
-      compiled = new Function('__o', head + wrapper.join(inner))
-    } catch (ex) {
-      window.console && console.warn(ex) && console.warn(body)
-    }
-    return compiled.call(model,data)
+    return compiledFns[tmpl].call(model,data)
   }
 }
 
