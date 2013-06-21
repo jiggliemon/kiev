@@ -1,5 +1,5 @@
 var TemplateMixin = require('./mixin')
-var extend = require('yaul/extend')
+var extend = require('lodash').extend
 
 var config = module.config()
 
