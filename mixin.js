@@ -1,9 +1,15 @@
 var hasOwn = require('yaul/hasOwn')
-var forEach = require('yaul/forEach')
-var typeOf = require('yaul/typeOf')
-var make = require('yaul/make')
-var trim = require('yaul/trim')
+var lodash = require('lodash')
+var forEach = lodash.forEach
+var forOwn = lodash.forOwn
+var trim = lodash.trim
 var compiledFns = {}
+
+
+function typeOf ( thing, isType ) {
+  var type = Object.prototype.toString.call(thing).match(/\s([a-z|A-Z]+)/)[1].toLowerCase()
+  return isType ? type == isType : type
+}
 
 var isPath = function  ( str ) {
   if(!str) return !!0;
@@ -81,11 +87,12 @@ var TemplateMixin = {
    */ 
   ,getContext: function (args) {
     args = typeOf(args,'array') ? args : Array.prototype.slice.call(arguments,0)
-    var context = make(this, '_context', {})
+    var self = this
+    var context = self._context = self._context || {} 
 
     if ( arguments.length > 0 ) {
-      forEach(args, function (arg) {
-        context[arg] = this._context[arg]
+      forEach(args, function (arg, key) {
+        context[key] = self._context[key]
       })
     }
 
@@ -98,9 +105,12 @@ var TemplateMixin = {
    *
    */ 
   ,setTags: function ( tags) {
+    forOwn(tags, function (value, key) {
+      this.setTag(key,value)
+    })
     for ( var key in tags) {
       if ( hasOwn(tags,key) ) {
-        this.setTag(key,tags[key])
+        
       }
     }
 
