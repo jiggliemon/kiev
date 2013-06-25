@@ -1,8 +1,9 @@
-var hasOwn = require('yaul/hasOwn')
 var lodash = require('lodash')
-var forEach = lodash.forEach
 var forOwn = lodash.forOwn
-var trim = lodash.trim
+var forEach = lodash.forEach
+var isObject = lodash.isObject
+var isArray = lodash.isArray
+
 var compiledFns = {}
 
 
@@ -13,7 +14,7 @@ function typeOf ( thing, isType ) {
 
 var isPath = function  ( str ) {
   if(!str) return !!0;
-  str = trim(String(str))
+  str = String(str).trim()
 
   // crude check for a dom node && multiple lines
   // URL paths shoudln't have either
@@ -67,12 +68,10 @@ var TemplateMixin = {
     var context = self.getContext()
     var k
 
-    if ( typeOf(key, 'object') ) {
-      for ( k in key ) {
-        if ( hasOwn(key,k) ) {
-          self.setContext(k, key[k])
-        }
-      }
+    if ( isObject(key) ) {
+      forOwn (key, function (k,v)) {
+        self.setContext(k, v)
+      })
       return
     }
 
@@ -86,9 +85,8 @@ var TemplateMixin = {
    *
    */ 
   ,getContext: function (args) {
-    args = typeOf(args,'array') ? args : Array.prototype.slice.call(arguments,0)
-    var self = this
-    var context = self._context = self._context || {} 
+    args = isArray(args) ? args : Array.prototype.slice.call(arguments,0)
+    var context = this._context = this._contect || {} 
 
     if ( arguments.length > 0 ) {
       forEach(args, function (arg, key) {
@@ -105,14 +103,10 @@ var TemplateMixin = {
    *
    */ 
   ,setTags: function ( tags) {
-    forOwn(tags, function (value, key) {
-      this.setTag(key,value)
+    var self = this
+    forOwn(tags, function ( tag, key ) {
+      self.setTag(key, tag)
     })
-    for ( var key in tags) {
-      if ( hasOwn(tags,key) ) {
-        
-      }
-    }
 
     return this
   }
@@ -152,25 +146,10 @@ var TemplateMixin = {
    */ 
   ,setTemplate: function ( /* String */ str) {
     // todo: use yaul/trim
-    
-    str = trim(str).replace(/\\?'/g,"\\'")
-
-    if (!str) {
-      return
-    }
-
     var self = this
-
-    if ( isPath(str) ) {
-      window.require([str], function (tmpl) {
-        self._template = trim(tmpl).replace(/\\?'/g,"\\'")
-        self.fireEvent && self.fireEvent('template:ready:latched', self._template)
-      })
-    } else {
-      self._template = str
-      self.fireEvent && self.fireEvent('template:ready:latched', str)
-    }
-
+    str = str.trim().replace(/\\?'/g,"\\'")
+    self._template = str
+    self.fireEvent && self.fireEvent('template:ready:latched', str)
   }
 
   /**
@@ -188,18 +167,14 @@ var TemplateMixin = {
    *
    */ 
   ,parseOperators: function () {
-    var key
-    var operator
+    var self = this
     var operators = this._templateOperators
 
-    for ( key in operators ) {
-      if ( hasOwn(operators, key) ) {
-        operator = operators[key]
-        if ( typeof operator[0] === 'string' ) {
-          this.addOperator(key, operator[0], operator[1])
-        }
+    forOwn( operators , function (operator, key) {
+      if ( typeof operator[0] === 'string' ) {
+        self.addOperator(key, operator[0], operator[1])
       }
-    }
+    })
   }
 
   /**
@@ -252,16 +227,13 @@ var TemplateMixin = {
       var open = self.getTag('open')
       var close = self.getTag('close')
       var operators = self.getOperators()
-      var key
       var body
       var head = 'var p=[],print=function(){p.push.apply(p,arguments);};'
       var wrapper = ["with(__o){p.push('", "');}return p.join('');"]
 
-      for ( key in operators ) {
-        if ( hasOwn(operators,key) ) {
-          tmpl = tmpl.replace(operators[key][0], operators[key][1])
-        }
-      }
+      forOwn(operators, function (operator, key) {
+        tmpl = tmpl.replace(operator[0], operator[1])
+      }) {
 
       // This method will evaluate in the template.
       tmpl = tmpl.replace(new RegExp(open + '([\\s\\S]+?)' + close, 'g'), function ( match, code ) {
@@ -273,7 +245,7 @@ var TemplateMixin = {
 
       try {
         body = head + wrapper.join(tmpl)
-        compiledFns[tmpl] = new Function('__o', head + wrapper.join(tmpl))
+        compiledFns[tmpl] = new Function('__o',body)
       } catch (ex) {
         window.console && console.warn(ex) && console.warn(body)
       }
