@@ -1,17 +1,23 @@
 {
-   "name": "yate"
-  ,"version":"0.1"
-  ,"description": "Yet another template engine"
-  ,"author": "Chase Wilson <@jiggliemon> (http://agroism.com)"
-  ,"main": "./src/index.js"
-  ,"repository" : { 
-     "type" : "git"
-    ,"url" : "http://github.com/jiggliemon/yate.git"
-  }
-  ,"dependencies": {
-    "yaul":">0.0.0"
-  }
-  ,"devDependencies": {
-    "mocha": "1.6"
-  }
+  "name": "kiev",
+  "version": "0.0.0",
+  "description": "Template engine",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jiggliemon/kiev.git"
+  },
+  "keywords": [
+    "template",
+    "templating",
+    "communisim"
+  ],
+  "author": "chase wilson <@jiggliemon>",
+  "license": "BSD"
 }

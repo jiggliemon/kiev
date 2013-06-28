@@ -1,8 +1,6 @@
 var TemplateMixin = require('./mixin')
 var extend = require('lodash').extend
 
-var config = module.config()
-
 function Template (config) {
   config = config || {}
   var self = this
@@ -15,9 +13,5 @@ function Template (config) {
 
 Template.prototype = extend({}, TemplateMixin)
 Template.setTags = Template.prototype.setTags
-
-if (config.tags) {
-  Template.setTags(config.tags)
-}
 
 module.exports = Template

@@ -1,5 +1,5 @@
-# YATE
-Yet another template engine
+# Kiev
+Another template engine
 
 ### Constructor API
 - Template
