@@ -1,6 +1,6 @@
 {
   "name": "kiev",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "Template engine",
   "main": "index.js",
   "directories": {

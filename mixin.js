@@ -69,7 +69,7 @@ var TemplateMixin = {
     var k
 
     if ( isObject(key) ) {
-      forOwn (key, function (k,v)) {
+      forOwn (key, function (v,k) {
         self.setContext(k, v)
       })
       return
@@ -145,10 +145,9 @@ var TemplateMixin = {
    *
    */ 
   ,setTemplate: function ( /* String */ str) {
-    // todo: use yaul/trim
     var self = this
     str = str.trim().replace(/\\?'/g,"\\'")
-    self._template = str
+    self.template = str
     self.fireEvent && self.fireEvent('template:ready:latched', str)
   }
 
@@ -158,7 +157,7 @@ var TemplateMixin = {
    *
    */ 
   ,getTemplate: function () {
-    return this._template || ''
+    return this.template || ''
   }
 
   /**
@@ -218,10 +217,12 @@ var TemplateMixin = {
    *  @param {Object} model
    */ 
   ,compile: function ( /* Object */ context, model ) {
-    data = context || this.getContext()
     var self = this
     var template = self.getTemplate()
     var tmpl = !template ? "<b>No template</b>" : template.replace(/[\r\t\n]/g, " ")
+    
+    model || (model = self)
+    context || (context = this.getContext())
 
     if (!compiledFns[tmpl]) {
       var open = self.getTag('open')
@@ -231,9 +232,9 @@ var TemplateMixin = {
       var head = 'var p=[],print=function(){p.push.apply(p,arguments);};'
       var wrapper = ["with(__o){p.push('", "');}return p.join('');"]
 
-      forOwn(operators, function (operator, key) {
+      forOwn(operators, function (operator) {
         tmpl = tmpl.replace(operator[0], operator[1])
-      }) {
+      })
 
       // This method will evaluate in the template.
       tmpl = tmpl.replace(new RegExp(open + '([\\s\\S]+?)' + close, 'g'), function ( match, code ) {
@@ -250,7 +251,7 @@ var TemplateMixin = {
         window.console && console.warn(ex) && console.warn(body)
       }
     }
-    return compiledFns[tmpl].call(model,data)
+    return compiledFns[tmpl].call(model,context)
   }
 }
 
