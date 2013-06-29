@@ -12,25 +12,6 @@ function typeOf ( thing, isType ) {
   return isType ? type == isType : type
 }
 
-var isPath = function  ( str ) {
-  if(!str) return !!0;
-  str = String(str).trim()
-
-  // crude check for a dom node && multiple lines
-  // URL paths shoudln't have either
-  if(str.charAt(0) === '<' || /\n/.test(str)) {
-    return false
-  }
-  
-  // Crude AMD check
-  if(/^te(xt|mplate)!/.test(str)) {
-    return true
-  }
-
-  // If still not decided, check for path elements
-  return pathRegexp.test(str)
-}
-
 var escape = function (string) {
   return String(string)
     .replace(/&/g, '&amp;')
@@ -219,9 +200,9 @@ var TemplateMixin = {
   ,compile: function ( /* Object */ context, model ) {
     var self = this
     var template = self.getTemplate()
-    var tmpl = !template ? "<b>No template</b>" : template.replace(/[\r\t\n]/g, " ")
-    
-    model || (model = self)
+    var tmpl = !template ? "No Template" : template.replace(/[\r\t\n]/g, " ")
+  
+    model   || (model = self.model || self)
     context || (context = this.getContext())
 
     if (!compiledFns[tmpl]) {
@@ -248,7 +229,10 @@ var TemplateMixin = {
         body = head + wrapper.join(tmpl)
         compiledFns[tmpl] = new Function('__o',body)
       } catch (ex) {
-        window.console && console.warn(ex) && console.warn(body)
+        typeof window !== 'undefined' 
+          && window.console 
+          && console.warn(ex) 
+          && console.warn(body)
       }
     }
     return compiledFns[tmpl].call(model,context)
